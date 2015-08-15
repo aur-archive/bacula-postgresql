@@ -1,0 +1,30 @@
+post_install() {
+  getent group bacula 1>/dev/null || groupadd -r -g 77 bacula 1>/dev/null
+  getent passwd bacula 1>/dev/null || useradd -r -u 77 -g bacula -d "/var/cache/bacula" -s "/bin/false" bacula 1>/dev/null
+  mkdir -p /run/bacula
+  chown -R bacula.bacula /run/bacula /etc/bacula
+
+  cat << EOM
+
+Note:
+==> Please don't forget to config your PostgreSQL database for the program.
+==>
+==> 1. Run /etc/bacula/scripts/grant_postgresql_privileges. This script creates database user
+==> 'bacula' with unrestricted rights to the bacula's database. The
+==> script creates user without any password. You may want to edit
+==> the script before run it.
+==> 2. Run /etc/bacula/scripts/create_postgresql_database to create the Database
+==> Bacula.
+==> 3. Run /etc/bacula/scripts/make_postgresql_tables to create tables used by bacula.
+
+==> The archive directory is: /var/cache/bacula
+
+==> Bacula's offical website : http://www.bacula.org
+  
+EOM
+}
+
+post_remove() {
+  getent passwd bacula 1>/dev/null && userdel bacula 1>/dev/null
+  getent group bacula 1>/dev/null && groupdel bacula 1>/dev/null
+}
